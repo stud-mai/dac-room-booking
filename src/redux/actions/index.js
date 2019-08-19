@@ -16,14 +16,16 @@ export const setWorkspaceInfoStatus = (workspaceInfoStatus) => ({
     workspaceInfoStatus
 });
 
-export const getAvailableRooms = (workspaceHost) => ({
+export const getAvailableRooms = (workspaceHost, date) => ({
     type: actionTypes.GET_AVAILABLE_ROOMS,
-    workspaceHost
+    workspaceHost,
+    date
 });
 
-export const setAvailableRooms = (workspaceHost, availableRooms) => ({
+export const setAvailableRooms = (workspaceHost, date, availableRooms) => ({
     type: actionTypes.SET_AVAILABLE_ROOMS,
     workspaceHost,
+    date,
     availableRooms
 });
 
@@ -31,4 +33,16 @@ export const setAvailableRoomsStatus = (workspaceHost, availableRoomsStatus) => 
     type: actionTypes.SET_AVAILABLE_ROOMS_STATUS,
     workspaceHost,
     availableRoomsStatus
+});
+
+export const filterRoomsByName = (workspaceHost, searchedRoomName) => ({
+    type: actionTypes.FILTER_ROOMS_BY_NAME,
+    workspaceHost,
+    searchedRoomName
+});
+
+export const filterRoomsByNextHourAvailability = (workspaceHost, nextHourAvailability) => ({
+    type: actionTypes.FILTER_ROOMS_BY_NEXT_HOUR_AVAILABILITY,
+    workspaceHost,
+    nextHourAvailability
 });

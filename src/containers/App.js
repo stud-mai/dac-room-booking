@@ -36,20 +36,20 @@ const useStyles = makeStyles(theme => ({
 		display: 'flex',
 	},
 	drawer: {
-		[theme.breakpoints.up('sm')]: {
+		[theme.breakpoints.up('md')]: {
 			width: drawerWidth,
 			flexShrink: 0,
 		},
 	},
 	appBar: {
 		marginLeft: drawerWidth,
-		[theme.breakpoints.up('sm')]: {
+		[theme.breakpoints.up('md')]: {
 			width: `calc(100% - ${drawerWidth}px)`,
 		},
 	},
 	menuButton: {
 		marginRight: theme.spacing(2),
-		[theme.breakpoints.up('sm')]: {
+		[theme.breakpoints.up('md')]: {
 			display: 'none',
 		},
 	},
@@ -82,7 +82,11 @@ function App(props) {
 
 	const drawer = (
 		<div>
-			<div className={classes.toolbar} />
+			<div className={classes.toolbar}>
+				<Typography variant="h6" component="p" align="center">
+					Room Booking App
+				</Typography>
+			</div>
 			<Divider />
 			<MenuList>
 				<MenuItem component={Link} to="/" selected={'' === currentWorkspace}>
@@ -131,7 +135,7 @@ function App(props) {
 			</AppBar>
 			<nav className={classes.drawer} aria-label="mailbox folders">
 				{/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-				<Hidden smUp implementation="css">
+				<Hidden mdUp implementation="css">
 					<Drawer
 						variant="temporary"
 						anchor={theme.direction === 'rtl' ? 'right' : 'left'}
@@ -147,7 +151,7 @@ function App(props) {
 						{drawer}
 					</Drawer>
 				</Hidden>
-				<Hidden xsDown implementation="css">
+				<Hidden smDown implementation="css">
 					<Drawer
 						classes={{
 							paper: classes.drawerPaper,

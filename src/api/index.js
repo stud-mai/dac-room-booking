@@ -7,7 +7,7 @@ export const getWorkspaceInfo = (workspaceHost) =>
         .then(response => response)
         .catch(err => ({ err }))
 
-export const getRooms = (workspaceHost, date = 'today') =>
+export const getRooms = (workspaceHost, date) =>
     API(workspaceHost).post(`/getrooms`, { date })
         .then(response => response)
         .catch(err => ({ err }))

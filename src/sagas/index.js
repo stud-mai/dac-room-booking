@@ -19,16 +19,16 @@ function* addWorkspace({ workspaceHost }) {
     }
 }
 
-function* getAvailableRooms({ workspaceHost }) {
+function* getAvailableRooms({ workspaceHost, date = Date.now() }) {
     yield put(actions.setAvailableRoomsStatus(workspaceHost, 'FETCHING'));
 
-    const response = yield call(API.getRooms, workspaceHost)
+    const response = yield call(API.getRooms, workspaceHost, date)
 
     if (response.err) {
         // yield put(AssessmentPlayerActions.setResetRequestStatus(RequestStatus.ERROR))
         console.error('!!! ERROR !!!')
     } else {
-        yield put(actions.setAvailableRooms(workspaceHost, response.data))
+        yield put(actions.setAvailableRooms(workspaceHost, date, response.data))
     }
 }
 
