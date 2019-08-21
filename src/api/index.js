@@ -12,7 +12,7 @@ export const getRooms = (workspaceHost, date) =>
         .then(response => response)
         .catch(err => ({ err }))
 
-// export const submitQuestionManualGrade = ({ serviceUrl, question, value, comment }) =>
-//     API(serviceUrl).post(`/questions/${question.id}/grade`, { question, value, comment })
-//         .then(response => response)
-//         .catch(err => ({ err }))
+export const bookRoom = (workspaceHost, bookingInfo) =>
+    API(workspaceHost).post(`/sendpass`, bookingInfo)
+        .then(response => response)
+        .catch(err => ({ err }))

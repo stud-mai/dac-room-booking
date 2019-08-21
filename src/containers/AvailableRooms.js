@@ -1,15 +1,15 @@
 import React, { Component, Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import Carousel from 'nuka-carousel';
 import DayjsUtils from '@date-io/dayjs';
 import dayjs from 'dayjs';
+import Carousel from 'nuka-carousel';
+
 import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -22,6 +22,7 @@ import ChevronRight from '@material-ui/icons/ChevronRightRounded';
 import BookmarkIcon from '@material-ui/icons/BookmarkRounded';
 
 import Timebar from '../components/Timebar';
+import BookingDialog from './BookingDialog';
 import * as actions from '../redux/actions';
 
 class AvailableRooms extends Component {
@@ -35,6 +36,13 @@ class AvailableRooms extends Component {
         }
     }
 
+    openBookingDialog = (roomProps) => {
+        const { workspace: { dateForAvailableRooms }, initBooking } = this.props;
+        initBooking(roomProps, dateForAvailableRooms);
+    }
+
+    closeBookingDialog = () => this.props.cancelBooking();
+
     dateChangeHandler = (date) => {
         if (date.isValid()) {
             this.props.getAvailableRooms(date.valueOf())
@@ -42,13 +50,13 @@ class AvailableRooms extends Component {
     }
 
     nextDateChangeHandler = () => {
-        const { workspace: { availableRoomsForDate }, getAvailableRooms } = this.props;
-        getAvailableRooms(dayjs(availableRoomsForDate).add(1, 'day').valueOf());
+        const { workspace: { dateForAvailableRooms }, getAvailableRooms } = this.props;
+        getAvailableRooms(dayjs(dateForAvailableRooms).add(1, 'day').valueOf());
     }
 
     prevDateChangeHandler = () => {
-        const { workspace: { availableRoomsForDate }, getAvailableRooms } = this.props;
-        getAvailableRooms(dayjs(availableRoomsForDate).subtract(1, 'day').valueOf());
+        const { workspace: { dateForAvailableRooms }, getAvailableRooms } = this.props;
+        getAvailableRooms(dayjs(dateForAvailableRooms).subtract(1, 'day').valueOf());
     }
 
     searchRoomNameChangeHandler = ({ target }) => this.props.filterRoomsByName(target.value);
@@ -56,9 +64,12 @@ class AvailableRooms extends Component {
     nextHourAvailabilityChangeHandler = ({ target }) => this.props.filterRoomsByNextHourAvailability(target.checked);
 
     render() {
-        const { workspace, match } = this.props;
-        const { filteredRooms, availableRoomsStatus, availableRoomsForDate, searchedRoomName, nextHourAvailability } = workspace || {};
-        const dateIsToday = dayjs(availableRoomsForDate).isSame(Date.now(), 'date');
+        const { workspace, bookingDialogOpen, match } = this.props;
+        const { filteredRooms, availableRoomsStatus, dateForAvailableRooms, searchedRoomName, nextHourAvailability } = workspace || {};
+        const workspaceHost = match.params.workspace;
+        const date = dayjs(dateForAvailableRooms);
+        const dateIsToday = date.isSame(Date.now(), 'date');
+        const laterThan19 = date.isAfter(date.hour(19).minute(0).second(0));
 
         console.log(workspace)
 
@@ -75,7 +86,7 @@ class AvailableRooms extends Component {
                 <DatePicker
                     disablePast
                     placeholder="20/10/2020"
-                    value={availableRoomsForDate}
+                    value={dateForAvailableRooms}
                     onChange={this.dateChangeHandler}
                     format="DD MMMM YYYY"
                 />
@@ -113,7 +124,12 @@ class AvailableRooms extends Component {
                                 <CardHeader
                                     title={`Room ${name}`}
                                     action={
-                                        <IconButton aria-label="settings" title="Book the room" onClick={console.log}>
+                                        <IconButton
+                                            aria-label={laterThan19 ? 'Booking is not available for today' : 'Book the room'}
+                                            title={laterThan19 ? 'Booking is not available for today' : 'Book the room'}
+                                            onClick={() => this.openBookingDialog({ name, avail })}
+                                            disabled={dateIsToday && laterThan19}
+                                        >
                                             <BookmarkIcon />
                                         </IconButton>
                                     }
@@ -123,7 +139,7 @@ class AvailableRooms extends Component {
                                         <CardMedia
                                             key={image}
                                             component="img"
-                                            image={`https://${match.params.workspace}/roombooking/${image}`}
+                                            image={`https://${workspaceHost}/roombooking/${image}`}
                                             title={`Room ${name}`}
                                             height="140"
                                         />
@@ -151,25 +167,33 @@ class AvailableRooms extends Component {
                         </Grid>
                     ))}
                 </Grid>
+                <BookingDialog
+                    open={bookingDialogOpen}
+                    workspaceHost={workspaceHost}
+                    closeDialog={this.closeBookingDialog}
+                />
             </MuiPickersUtilsProvider>
         )
     }
 }
 
 const mapStateToProps = (state, { match }) => ({
-    workspace: state.workspaces[match.params.workspace]
+    workspace: state.workspaces[match.params.workspace],
+    bookingDialogOpen: state.bookings.bookingDialogOpen,
 });
 
 const mapDispatchToProps = (dispatch, { match }) => {
     const workspaceHost = match.params.workspace;
 
     return {
-        getAvailableRooms: (date) => dispatch(actions.getAvailableRooms(workspaceHost, date)),
         // setWorkspaceInfoStatus: (status) => dispatch(actions.setWorkspaceInfoStatus(status)),
+        getAvailableRooms: (date) => dispatch(actions.getAvailableRooms(workspaceHost, date)),
         filterRoomsByName: (roomName) => dispatch(actions.filterRoomsByName(workspaceHost, roomName)),
         filterRoomsByNextHourAvailability: (checked) => dispatch(
             actions.filterRoomsByNextHourAvailability(workspaceHost, checked)
-        )
+        ),
+        initBooking: (roomProps, bookingDate) => dispatch(actions.initBooking(roomProps, bookingDate)),
+        cancelBooking: () => dispatch(actions.cancelBooking()),
     }
 };
 

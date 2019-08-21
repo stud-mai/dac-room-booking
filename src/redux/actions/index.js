@@ -1,9 +1,11 @@
 import * as actionTypes from './actionTypes';
 
-export const addWorkspace = (workspaceHost) => ({
-    type: actionTypes.ADD_WORKSPACE,
-    workspaceHost
-});
+export const updateWorkspaceHostname = (hostname) => ({
+    type: actionTypes.UPDATE_WORKSPACE_HOSTNAME,
+    hostname
+})
+
+export const addWorkspace = () => ({ type: actionTypes.ADD_WORKSPACE });
 
 export const setWorkspaceInfo = (workspaceHost, workspaceInfo) => ({
     type: actionTypes.SET_WORKSPACE_INFO,
@@ -11,9 +13,9 @@ export const setWorkspaceInfo = (workspaceHost, workspaceInfo) => ({
     workspaceInfo
 });
 
-export const setWorkspaceInfoStatus = (workspaceInfoStatus) => ({
-    type: actionTypes.SET_WORKSPACE_INFO_STATUS,
-    workspaceInfoStatus
+export const setWorkspaceStatus = (status) => ({
+    type: actionTypes.SET_WORKSPACE_STATUS,
+    status
 });
 
 export const getAvailableRooms = (workspaceHost, date) => ({
@@ -46,3 +48,34 @@ export const filterRoomsByNextHourAvailability = (workspaceHost, nextHourAvailab
     workspaceHost,
     nextHourAvailability
 });
+
+export const initBooking = (roomProps, bookingDate) => ({
+    type: actionTypes.INIT_BOOKING,
+    roomProps,
+    bookingDate
+});
+
+export const cancelBooking = () => ({ type: actionTypes.CANCEL_BOOKING });
+
+export const updateEventField = (field, value) => ({
+    type: actionTypes.UPDATE_EVENT_FIELD,
+    field,
+    value
+});
+
+export const addParticipant = (participant) => ({
+    type: actionTypes.ADD_PARTICIPANT,
+    participant
+});
+
+export const removeParticipant = (participantIndex) => ({
+    type: actionTypes.REMOVE_PARTICIPANT,
+    participantIndex
+});
+
+export const makeBooking = (workspaceHost) => ({
+    type: actionTypes.MAKE_BOOKING,
+    workspaceHost
+});
+
+export const validateBookingTime = () => ({ type: actionTypes.VALIDATE_BOOKING_TIME });
