@@ -1,4 +1,4 @@
-# DAC Room Booking App (React, Redux, Redux-Saga, Material-UI)
+# DAC Room Booking App (React, React-Router, Redux, Redux-Saga, Material-UI)
 
 ## Running instructions
 
