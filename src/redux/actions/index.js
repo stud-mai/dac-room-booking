@@ -3,7 +3,7 @@ import * as actionTypes from './actionTypes';
 export const updateWorkspaceHostname = (hostname) => ({
     type: actionTypes.UPDATE_WORKSPACE_HOSTNAME,
     hostname
-})
+});
 
 export const addWorkspace = () => ({ type: actionTypes.ADD_WORKSPACE });
 
@@ -16,6 +16,11 @@ export const setWorkspaceInfo = (workspaceHost, workspaceInfo) => ({
 export const setWorkspaceStatus = (status) => ({
     type: actionTypes.SET_WORKSPACE_STATUS,
     status
+});
+
+export const setWorkspaceErrorMessage = (errorMessage) => ({
+    type: actionTypes.SET_WORKSPACE_ERROR_MESSAGE,
+    errorMessage
 });
 
 export const getAvailableRooms = (workspaceHost, date) => ({
@@ -35,6 +40,12 @@ export const setAvailableRoomsStatus = (workspaceHost, availableRoomsStatus) => 
     type: actionTypes.SET_AVAILABLE_ROOMS_STATUS,
     workspaceHost,
     availableRoomsStatus
+});
+
+export const setAvailableRoomsErrorMessage = (workspaceHost, availableRoomsErrorMessage) => ({
+    type: actionTypes.SET_AVAILABLE_ROOMS_ERROR_MESSAGE,
+    workspaceHost,
+    availableRoomsErrorMessage
 });
 
 export const filterRoomsByName = (workspaceHost, searchedRoomName) => ({
@@ -68,9 +79,24 @@ export const addParticipant = (participant) => ({
     participant
 });
 
+export const setParticipantIndexForEdit = (participantIndex) => ({
+    type: actionTypes.SET_PARTICIPANT_INDEX_FOR_EDIT,
+    participantIndex
+});
+
 export const removeParticipant = (participantIndex) => ({
     type: actionTypes.REMOVE_PARTICIPANT,
     participantIndex
+});
+
+export const setBookingStatus = (bookingStatus) => ({
+    type: actionTypes.SET_BOOKING_STATUS,
+    bookingStatus
+});
+
+export const setBookingErrorMessage = (bookingErrorMessage) => ({
+    type: actionTypes.SET_BOOKING_ERROR_MESSAGE,
+    bookingErrorMessage
 });
 
 export const makeBooking = (workspaceHost) => ({
@@ -79,3 +105,9 @@ export const makeBooking = (workspaceHost) => ({
 });
 
 export const validateBookingTime = () => ({ type: actionTypes.VALIDATE_BOOKING_TIME });
+
+export const finishBooking = (workspaceHost, bookingProps) => ({
+    type: actionTypes.FINISH_BOOKING,
+    workspaceHost,
+    bookingProps
+});

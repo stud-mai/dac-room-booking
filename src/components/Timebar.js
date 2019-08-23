@@ -1,8 +1,9 @@
 import React from 'react';
+import propTypes from 'prop-types';
+
 import { makeStyles } from '@material-ui/styles';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-
 
 const START_BOOKING_HOUR = 7;
 const END_BOOKING_HOUR = 19;
@@ -25,14 +26,14 @@ const timePeriodToStyles = (start, end) => (period) => {
     }
 };
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
     timebar: {
         position: 'relative',
         padding: 0,
         margin: 0,
         height: '0.8em',
         width: '100%',
-        backgroundColor: '#E31E2F',
+        backgroundColor: theme.palette.error.main,
         cursor: 'not-allowed',
         display: 'flex',
         justifyContent:'space-between'
@@ -40,7 +41,7 @@ const useStyles = makeStyles({
     availableSlot: {
         position: 'absolute',
         height: '0.8em',
-        background: '#009547',
+        background: theme.palette.secondary.main,
         cursor: 'pointer'
     },
     timeMesh: {
@@ -58,7 +59,7 @@ const useStyles = makeStyles({
         transform: 'translate(-50%, 50%)',
         fontSize: '0.8em'
     }
-});
+}));
 
 const Timebar = ({ availablePeriods, startTime = START_BOOKING_HOUR, endTime = END_BOOKING_HOUR }) => {
     const classes = useStyles();
@@ -84,6 +85,12 @@ const Timebar = ({ availablePeriods, startTime = START_BOOKING_HOUR, endTime = E
             ))}
         </div>
     )
+};
+
+Timebar.propTypes = {
+    availablePeriods: propTypes.arrayOf(propTypes.string).isRequired,
+    startTime: propTypes.oneOfType([propTypes.string, propTypes.object]),
+    endTime: propTypes.oneOfType([propTypes.string, propTypes.object])
 }
 
 export default Timebar;

@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
-import { getStartAndEndTimeFromPeriod } from '../../utils';
 import * as actionTypes from '../actions/actionTypes';
+import * as statuses from '../../entities/statuses';
+import { getStartAndEndTimeFromPeriod } from '../../utils';
 import validate, {
     startIsBeforeThanEnd,
     startIsInFuture,
@@ -13,7 +14,10 @@ const TIME_SLOT = 15;
 
 const INITIAL_STATE = {
     bookingDialogOpen: false,
+    bookingStatus: statuses.INITIAL,
+    bookingErrorMessage: '',
     currentAvailablePeriods: [],
+    participantIndexForEdit: undefined,
     currentBooking: {
         date: undefined,
         time_start: undefined,
@@ -21,7 +25,8 @@ const INITIAL_STATE = {
         title: '',
         description: '',
         room: '',
-        passes: [{ name: 'Elon Musk', email: 'e.msk@mail.org', number: '+18881324567' }]
+        roomId: undefined,
+        passes: []
     },
     timeValidation: VALID,
     recentBookings: []
@@ -34,7 +39,7 @@ const getTimeRegardingTimeSlot = () => {
 };
 
 const initializeBooking = (state, { roomProps, bookingDate }) => {
-    const { name, avail = [] } = roomProps;
+    const { id, name, avail = [] } = roomProps;
     const bookingTime = getTimeRegardingTimeSlot();
     const date = dayjs(bookingDate);
     const dateIsToday = date.isSame(bookingTime, 'date');
@@ -56,10 +61,12 @@ const initializeBooking = (state, { roomProps, bookingDate }) => {
     return {
         ...state,
         bookingDialogOpen: true,
+        bookingStatus: statuses.INITIAL,
         currentAvailablePeriods,
         currentBooking: {
             ...state.currentBooking,
             room: name,
+            roomId: id,
             date: date.valueOf(),
             time_start,
             time_end
@@ -70,6 +77,16 @@ const initializeBooking = (state, { roomProps, bookingDate }) => {
 const cancelBooking = (state) => ({
     ...INITIAL_STATE,
     recentBookings: state.recentBookings
+});
+
+const setBookingStatus = (state, { bookingStatus }) => ({
+    ...state,
+    bookingStatus
+});
+
+const setBookingErrorMessage = (state, { bookingErrorMessage }) => ({
+    ...state,
+    bookingErrorMessage
 });
 
 const updateEventField = (state, { field, value }) => ({
@@ -93,12 +110,25 @@ const validateBookingTime = (state) => {
     return { ...state, timeValidation };
 };
 
-const addParticipant = (state, { participant }) => ({
+const addParticipant = (state, { participant }) => {
+    const { participantIndexForEdit, currentBooking } = state;
+    const passes = participantIndexForEdit !== undefined
+        ? [
+            ...currentBooking.passes.slice(0, participantIndexForEdit),
+            participant,
+            ...currentBooking.passes.slice(participantIndexForEdit + 1)
+        ]
+        : currentBooking.passes.concat(participant);
+
+    return {
+        ...state,
+        currentBooking: { ...currentBooking, passes }
+    };
+};
+
+const setParticipantIndexForEdit = (state, { participantIndex }) => ({
     ...state,
-    currentBooking: {
-        ...state.currentBooking,
-        passes: state.currentBooking.passes.concat(participant)
-    }
+    participantIndexForEdit: participantIndex
 });
 
 const removeParticipant = (state, { participantIndex }) => {
@@ -112,14 +142,24 @@ const removeParticipant = (state, { participantIndex }) => {
     }
 };
 
+const finishBooking = (state) => ({
+    ...INITIAL_STATE,
+    bookingStatus: state.bookingStatus,
+    recentBookings: state.recentBookings.concat(state.currentBooking)
+});
+
 const bookingsReducer = (state = INITIAL_STATE, action) => {
     const handlers = {
         [actionTypes.INIT_BOOKING]: initializeBooking,
         [actionTypes.CANCEL_BOOKING]: cancelBooking,
+        [actionTypes.SET_BOOKING_STATUS]: setBookingStatus,
+        [actionTypes.SET_BOOKING_ERROR_MESSAGE]: setBookingErrorMessage,
         [actionTypes.UPDATE_EVENT_FIELD]: updateEventField,
         [actionTypes.VALIDATE_BOOKING_TIME]: validateBookingTime,
         [actionTypes.ADD_PARTICIPANT]: addParticipant,
-        [actionTypes.REMOVE_PARTICIPANT]: removeParticipant
+        [actionTypes.REMOVE_PARTICIPANT]: removeParticipant,
+        [actionTypes.SET_PARTICIPANT_INDEX_FOR_EDIT]: setParticipantIndexForEdit,
+        [actionTypes.FINISH_BOOKING]: finishBooking
     }
     return handlers[action.type] ? handlers[action.type](state, action) : state;
 };

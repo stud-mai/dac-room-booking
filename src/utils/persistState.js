@@ -3,7 +3,7 @@ export const saveState = (state) => {
         const serializedState = JSON.stringify(state);
         window.localStorage.setItem('dacRoomBookingApp', serializedState);
     } catch (error) {
-        console.error(error)
+        console.error(error);
     }
 };
 
@@ -17,4 +17,4 @@ export const loadState = () => {
     } catch (error) {
         return undefined;
     }
-}
+};

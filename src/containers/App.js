@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react';
+import propTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Switch, Route } from 'react-router';
 import { Link, withRouter } from 'react-router-dom';
@@ -18,13 +19,12 @@ import AddBox from '@material-ui/icons/AddBox';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 import * as actions from '../redux/actions';
 import AddWorkspace from '../components/AddWorkspace';
 import AvailableRooms from './AvailableRooms';
 
-// import './App.css';
 const drawerWidth = 240;
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -68,9 +68,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const App = (props) => {
-	const { workspaces, newWorkspace, hostnameChangeHandler, addWorkspace } = props;
+	const { workspaces, newWorkspace, updateWorkspaceHostname, addWorkspace } = props;
 	const classes = useStyles();
-	const theme = useTheme();
 	const [mobileOpen, setMobileOpen] = useState(false);
 
 	const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
@@ -120,6 +119,7 @@ const App = (props) => {
 			<AppBar position="fixed" className={classes.appBar}>
 				<Toolbar>
 					<IconButton
+						color="inherit"
 						aria-label="open drawer"
 						edge="start"
 						onClick={handleDrawerToggle}
@@ -143,7 +143,6 @@ const App = (props) => {
 				<Hidden mdUp implementation="css">
 					<Drawer
 						variant="temporary"
-						anchor={theme.direction === 'rtl' ? 'right' : 'left'}
 						open={mobileOpen}
 						onClose={handleDrawerToggle}
 						classes={{ paper: classes.drawerPaper }}
@@ -171,7 +170,7 @@ const App = (props) => {
 							{...props}
 							{...newWorkspace}
 							onAddWorkspace={addWorkspaceHandler}
-							onHostnameChange={hostnameChangeHandler}
+							onHostnameChange={updateWorkspaceHostname}
 						/>
 					}/>
 				</Switch>
@@ -180,13 +179,25 @@ const App = (props) => {
 	);
 }
 
+App.propTypes = {
+	workspaces: propTypes.object.isRequired,
+	newWorkspace: propTypes.shape({
+		hostname: propTypes.string,
+		status: propTypes.string,
+		errorMessage: propTypes.string
+	}),
+
+	updateWorkspaceHostname: propTypes.func.isRequired,
+	addWorkspace: propTypes.func.isRequired
+}
+
 const mapStateToProps = ({ newWorkspace, workspaces }) => ({
 	newWorkspace,
 	workspaces
 })
 
 const mapDispatchToProps = (dispatch) => ({
-	hostnameChangeHandler: (hostname) => dispatch(actions.updateWorkspaceHostname(hostname)),
+	updateWorkspaceHostname: (hostname) => dispatch(actions.updateWorkspaceHostname(hostname)),
 	addWorkspace: () => dispatch(actions.addWorkspace()),
 })
 

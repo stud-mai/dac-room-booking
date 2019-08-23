@@ -1,4 +1,5 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
+import propTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,18 +10,9 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
-import validate, {
-    notEmpty,
-    isEmail,
-    isPhone,
-    VALID
-} from '../utils/validation';
+import validate, { notEmpty, isEmail, isPhone, VALID } from '../utils/validation';
 
-const initialState = {
-    name: { value: '', ...VALID },
-    email: { value: '', ...VALID },
-    number: { value: '', ...VALID }
-};
+const emptyParticipant = { name: '', email: '', number: '' };
 
 const fieldValidators = {
     name: notEmpty('Participant name cannot be empty'),
@@ -28,43 +20,43 @@ const fieldValidators = {
     number: [notEmpty('Phone number cannot be empty'), isPhone('Phone number is not correct')],
 };
 
+const init = (participant = emptyParticipant) => {
+    return Object.keys(participant).reduce((accState, key) => ({
+        ...accState,
+        [key]: { value: participant[key], ...VALID }
+    }), {});
+};
+const updateState = (state, { field, value }) => ({
+    ...state,
+    [field]: { ...state[field], value }
+});
+const validateState = (state, { field }) => {
+    const { value } = state[field];
+    const validation = validate(fieldValidators[field])(value);
+    return {
+        ...state,
+        [field]: { ...validation, value }
+    };
+};
+const reinitState = (state, action) => init(action.state);
+
 const reducer = (state, action) => {
-    switch (action.type) {
-        case 'update': {
-            const { field, value } = action;
-            return {
-                ...state,
-                [field]: { ...state[field], value }
-            };
-        };
-        case 'validate': {
-            const { field } = action;
-            const { value } = state[field];
-            const validation = validate(fieldValidators[field])(value);
-            return {
-                ...state,
-                [field]: { ...validation, value }
-            };
-        };
-        case 'reset':
-            return initialState;
-        default:
-            return state;
-    }
+    const handlers = { updateState, validateState, reinitState };
+    return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 
-const ParticipantDialog = (props) => {
-    const { open, closeDialog, addParticipant } = props;
+
+const ParticipantDialog = ({ open, participant, addParticipant, closeDialog }) => {
     const smallViewPort = useMediaQuery('(max-width: 766px)');
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const [state, dispatch] = useReducer(reducer, participant, init);
 
     const { name, email, number } = state;
     const addButtonDisabled = Object.keys(state).some(field => state[field].value === '' || !state[field].isValid);
 
-    const fieldChangeHandler = ({ target }) => dispatch({ type: 'update', field: target.name, value: target.value })
-    const fieldBlurHandler = ({ target }) => dispatch({ type: 'validate', field: target.name })
+    const fieldChangeHandler = ({ target }) => dispatch({ type: 'updateState', field: target.name, value: target.value })
+    const fieldBlurHandler = ({ target }) => dispatch({ type: 'validateState', field: target.name })
     const closeDialogHandler = () => {
-        dispatch({ type: 'reset' });
+        dispatch({ type: 'reinitState' });
         closeDialog();
     };
     const addParticipantHandler = () => {
@@ -72,6 +64,10 @@ const ParticipantDialog = (props) => {
         addParticipant(participantObject);
         closeDialogHandler();
     };
+
+    useEffect(() => {
+        dispatch({ type: 'reinitState', state: participant })
+    }, [participant]);
 
     return (
         <Dialog
@@ -119,7 +115,7 @@ const ParticipantDialog = (props) => {
                     required
                     margin="dense"
                     label="Phone number"
-                    placeholder="+1 888 1234567"
+                    placeholder="+79991234567"
                     type="tel"
                     name="number"
                     value={number.value}
@@ -137,11 +133,23 @@ const ParticipantDialog = (props) => {
                     Cancel
                 </Button>
                 <Button onClick={addParticipantHandler} color="primary" disabled={addButtonDisabled} >
-                    Add
+                    {participant ? 'Apply' : 'Add'}
                 </Button>
             </DialogActions>
         </Dialog>
     )
 };
+
+ParticipantDialog.propTypes = {
+    open: propTypes.bool.isRequired,
+    participant: propTypes.shape({
+        name: propTypes.string.isRequired,
+        email: propTypes.string.isRequired,
+        number: propTypes.string.isRequired
+    }),
+
+    addParticipant: propTypes.func.isRequired,
+    closeDialog: propTypes.func.isRequired
+}
 
 export default ParticipantDialog;

@@ -2,19 +2,19 @@ export const VALID = { isValid: true, errorMsg: '' };
 
 export const notEmpty = (errorMsg) => (value) => {
     const isValid = value !== ''
-    return isValid ? VALID : { isValid, errorMsg }
+    return isValid ? VALID : { isValid, errorMsg };
 };
 
 export const isEmail = (errorMsg) => (value) => {
     const regexp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
     const isValid = regexp.test(value);
-    return isValid ? VALID : { isValid, errorMsg }
+    return isValid ? VALID : { isValid, errorMsg };
 };
 
 export const isPhone = (errorMsg) => (value) => {
     const regexp = /^\+(?:[0-9] ?){6,14}[0-9]$/;
     const isValid = regexp.test(value);
-    return isValid ? VALID : { isValid, errorMsg }
+    return isValid ? VALID : { isValid, errorMsg };
 };
 
 export const startIsBeforeThanEnd = (errorMsg) => ({ start, end, TIME_SLOT }) => {
@@ -43,7 +43,7 @@ const validate = (validator) => (value) => {
     if (Array.isArray(validator)) {
         return validator.reduce((acc, validator) => {
             return acc.isValid ? validator(value) : acc;
-        }, VALID)
+        }, VALID);
     }
     return validator(value);
 };

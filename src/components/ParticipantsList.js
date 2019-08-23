@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import propTypes from 'prop-types';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -13,15 +14,12 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/EditRounded';
 
 
-const ParticipantsList = ({ participants, removeParticipant }) => {
+const ParticipantsList = ({ disabledControls, participants, setParticipantIndexForEdit, removeParticipant }) => {
     const [open, setOpen] = useState(false);
     const toggleParticipantsList = () => setOpen(!open);
 
     return (
-        <List
-            component="nav"
-            aria-labelledby="nested-list-subheader"
-        >
+        <List component="nav">
             <ListItem button onClick={toggleParticipantsList}>
                 <ListItemText primary={`Participants (${participants.length})`} />
                 {!!participants.length && (open ? <ExpandLess /> : <ExpandMore />)}
@@ -36,10 +34,20 @@ const ParticipantsList = ({ participants, removeParticipant }) => {
                                 </Avatar>
                             </ListItemIcon>
                             <ListItemText primary={name} secondary={`${email}, ${number}`} />
-                            <IconButton edge="end" aria-label="edit" onClick={() => removeParticipant(index)}>
+                            <IconButton
+                                edge="end"
+                                aria-label="edit"
+                                onClick={() => setParticipantIndexForEdit(index)}
+                                disabled={disabledControls}
+                            >
                                 <EditIcon />
                             </IconButton>
-                            <IconButton edge="end" aria-label="delete" onClick={() => removeParticipant(index)}>
+                            <IconButton
+                                edge="end"
+                                aria-label="delete"
+                                onClick={() => removeParticipant(index)}
+                                disabled={disabledControls}
+                            >
                                 <DeleteIcon />
                             </IconButton>
                         </ListItem>
@@ -49,5 +57,17 @@ const ParticipantsList = ({ participants, removeParticipant }) => {
         </List>
     );
 };
+
+ParticipantsList.propTypes = {
+    disabledControls: propTypes.bool.isRequired,
+    participants: propTypes.arrayOf(propTypes.shape({
+        name: propTypes.string,
+        email: propTypes.string,
+        number: propTypes.string
+    })).isRequired,
+
+    setParticipantIndexForEdit: propTypes.func.isRequired,
+    removeParticipant: propTypes.func.isRequired
+}
 
 export default ParticipantsList;

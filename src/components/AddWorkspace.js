@@ -1,5 +1,7 @@
 import React from 'react';
+import propTypes from 'prop-types';
 import { Redirect } from 'react-router';
+
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -7,6 +9,8 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+
+import * as statuses from '../entities/statuses';
 
 const useStyles = makeStyles(theme => ({
     paper: {
@@ -17,12 +21,12 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const AddWorkspace = ({ hostname, status, onAddWorkspace, onHostnameChange }) => {
+const AddWorkspace = ({ hostname, status, errorMessage, onAddWorkspace, onHostnameChange }) => {
     const classes = useStyles();
     const hostnameChangeHandler = ({ target }) => onHostnameChange(target.value);
     const keyPressHandler = ({ key }) => key === 'Enter' && onAddWorkspace();
 
-    if (status === 'LOADED') return <Redirect to={`/${hostname}`} />
+    if (status === statuses.LOADED) return <Redirect to={`/${hostname}`} />
 
     return (
         <Grid
@@ -50,18 +54,18 @@ const AddWorkspace = ({ hostname, status, onAddWorkspace, onHostnameChange }) =>
                         value={hostname}
                         onChange={hostnameChangeHandler}
                         onKeyPress={keyPressHandler}
-                        disabled={status === 'FETCHING'}
-                        error={status === 'ERROR'}
-                        helperText={status === 'ERROR' && "Oops... Some error occured. Please make sure the hostname is correct and try again"}
+                        disabled={status === statuses.FETCHING}
+                        error={status === statuses.ERROR}
+                        helperText={status === statuses.ERROR && errorMessage}
                     />
                     <Button
                         variant="contained"
                         color="primary"
                         fullWidth
                         onClick={onAddWorkspace}
-                        disabled={status === 'FETCHING'}
+                        disabled={status === statuses.FETCHING}
                     >
-                        {status === 'FETCHING' &&
+                        {status === statuses.FETCHING &&
                             <CircularProgress size={22} thickness={6} className={classes.progress} />
                         }
                         Add Workspace
@@ -71,5 +75,14 @@ const AddWorkspace = ({ hostname, status, onAddWorkspace, onHostnameChange }) =>
         </Grid>
     )
 };
+
+AddWorkspace.propTypes = {
+    hostname: propTypes.string.isRequired,
+    status: propTypes.string.isRequired,
+    errorMessage: propTypes.string,
+
+    onAddWorkspace: propTypes.func.isRequired,
+    onHostnameChange: propTypes.func.isRequired
+}
 
 export default AddWorkspace;
